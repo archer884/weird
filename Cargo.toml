@@ -2,5 +2,11 @@
 name = "weird"
 version = "0.1.0"
 authors = ["J/A <archer884@gmail.com>"]
+license = "MIT/Apache-2.0"
+keywords = ["crockford", "base32"]
+categories = ["encoding", "parsing", "value-formatting", "web-programming"]
+description = """
+A Crockford Base32-like encoding that produces non-sequential output based on a salt.
+"""
 
 [dependencies]
