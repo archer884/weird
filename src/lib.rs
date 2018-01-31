@@ -29,15 +29,15 @@ impl Write for Vec<u8> {
     }
 }
 
-pub struct Weird<T = StaticSalt> { pub salt: T }
+pub struct Weird<T> { pub salt: Salt<T> }
 
-impl Weird {
-    pub fn with_salt(salt: &'static [u8]) -> Self {
-        Weird { salt: StaticSalt(salt) }
+impl<T: AsRef<[u8]>> Weird<T> {
+    pub fn with_salt(salt: T) -> Self {
+        Weird { salt: Salt(salt) }
     }
 }
 
-impl<T: SaltProvider> Weird<T> {
+impl<T: AsRef<[u8]>> Weird<T> {
     pub fn encode(&self, n: u64) -> String {
         let mut buf = String::with_capacity(13);
         self.encode_into(n, &mut buf);
@@ -81,14 +81,14 @@ impl<T: SaltProvider> Weird<T> {
             i => {
                 n <<= QUAD_RESET;
                 n |= 1;
-                w.write(UPPERCASE_ENCODING[salt.shift(i) as usize]);
+                w.write(UPPERCASE_ENCODING[salt.apply(i) as usize]);
             }
         }
 
         // From now until we reach the stop bit, take the five most significant bits and then shift
         // left by five bits.
         while n != STOP_BIT {
-            w.write(UPPERCASE_ENCODING[salt.shift((n >> FIVE_SHIFT) as u8) as usize]);
+            w.write(UPPERCASE_ENCODING[salt.apply((n >> FIVE_SHIFT) as u8) as usize]);
             n <<= FIVE_RESET;
         }
     }
@@ -110,7 +110,7 @@ impl<T: SaltProvider> Weird<T> {
 
                 for (idx, u) in input.bytes().enumerate() {
                     let digit = to_normal_digit(idx, u)?;
-                    let digit = salt.shift(digit as u8);
+                    let digit = salt.apply(digit as u8);
                     n += u64::from(digit).wrapping_mul(place);
 
                     // This compiles to >>= 5
