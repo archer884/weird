@@ -36,11 +36,7 @@ impl fmt::Display for Error {
     }
 }
 
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        self.message
-    }
-}
+impl error::Error for Error {}
 
 #[cfg(test)]
 impl PartialEq for Error {

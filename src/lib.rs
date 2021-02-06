@@ -32,7 +32,7 @@ impl Write for Vec<u8> {
 pub struct Weird<T> { pub salt: Salt<T> }
 
 impl<T: AsRef<[u8]>> Weird<T> {
-    pub fn with_salt(salt: T) -> Self {
+    pub fn new(salt: T) -> Self {
         Weird { salt: Salt(salt) }
     }
 }
