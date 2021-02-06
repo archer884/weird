@@ -1,4 +1,4 @@
-use weird::{Weird, Salt};
+use weird::{Salt, Weird};
 
 fn main() {
     let salt_a = "In the beginning God created the heaven and the earth.";
@@ -11,13 +11,13 @@ fn main() {
         salt: Salt(b"And the earth was without form, and void; and darkness was upon the face of the deep.")
     };
 
-    for n in 10..21 {
+    for n in 1..=100 {
         let a = weird_a.encode(n);
         let b = WEIRD_B.encode(n);
 
         assert_eq!(n, weird_a.decode(&a).unwrap());
         assert_eq!(n, WEIRD_B.decode(&b).unwrap());
-        
+
         println!("A: {} B: {}", a, b);
     }
 }

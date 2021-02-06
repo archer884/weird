@@ -1,35 +1,14 @@
+use std::fmt::{self, Write};
+
 mod error;
 mod salt;
 
-pub use salt::*;
 pub use error::*;
+pub use salt::*;
 
-/// Represents writable buffer capable of receiving encoded data.
-///
-/// Write is implemented on `Vec<u8>` and `String`, but you are free to implement it on your own
-/// types. One conceivable purpose would be to allow for lowercase encoding output by inverting
-/// the cap bit before writing.
-pub trait Write {
-    /// Writes a single byte (or, more precisely, a 5-bit group) to the output.
-    fn write(&mut self, u: u8);
+pub struct Weird<T> {
+    pub salt: Salt<T>,
 }
-
-impl Write for String {
-    fn write(&mut self, u: u8) {
-        // UPPERCASE_ENCODING contains only ASCII bytes.
-        unsafe {
-            self.as_mut_vec().push(u);
-        }
-    }
-}
-
-impl Write for Vec<u8> {
-    fn write(&mut self, u: u8) {
-        self.push(u);
-    }
-}
-
-pub struct Weird<T> { pub salt: Salt<T> }
 
 impl<T: AsRef<[u8]>> Weird<T> {
     pub fn new(salt: T) -> Self {
@@ -40,11 +19,12 @@ impl<T: AsRef<[u8]>> Weird<T> {
 impl<T: AsRef<[u8]>> Weird<T> {
     pub fn encode(&self, n: u64) -> String {
         let mut buf = String::with_capacity(13);
-        self.encode_into(n, &mut buf);
+        self.encode_into(n, &mut buf)
+            .expect("Cannot fail to encode into a string");
         buf
     }
 
-    pub fn encode_into<W: Write>(&self, mut n: u64, w: &mut W) {
+    pub fn encode_into<W: Write>(&self, mut n: u64, w: &mut W) -> fmt::Result {
         static UPPERCASE_ENCODING: &[u8] = b"0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 
         // After we clear the four most significant bits, the four least significant bits will be
@@ -59,8 +39,8 @@ impl<T: AsRef<[u8]>> Weird<T> {
         const FIVE_RESET: usize = 5;
 
         if n == 0 {
-            w.write(b'0');
-            return;
+            w.write_char('0')?;
+            return Ok(());
         }
 
         let mut salt = self.salt.get();
@@ -81,21 +61,23 @@ impl<T: AsRef<[u8]>> Weird<T> {
             i => {
                 n <<= QUAD_RESET;
                 n |= 1;
-                w.write(UPPERCASE_ENCODING[salt.apply(i) as usize]);
+                w.write_char(UPPERCASE_ENCODING[salt.apply(i) as usize] as char)?;
             }
         }
 
         // From now until we reach the stop bit, take the five most significant bits and then shift
         // left by five bits.
         while n != STOP_BIT {
-            w.write(UPPERCASE_ENCODING[salt.apply((n >> FIVE_SHIFT) as u8) as usize]);
+            w.write_char(UPPERCASE_ENCODING[salt.apply((n >> FIVE_SHIFT) as u8) as usize] as char)?;
             n <<= FIVE_RESET;
         }
+
+        Ok(())
     }
 
     pub fn decode<S: AsRef<str>>(&self, input: S) -> Result<u64> {
         const BASE: u64 = 0x20;
-        
+
         let input = input.as_ref();
         match input.len() {
             0 => Err(Error::new(
