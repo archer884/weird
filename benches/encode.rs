@@ -3,14 +3,12 @@ use weird::Weird;
 
 fn encode_benchmark(c: &mut Criterion) {
     let weird = Weird::from_salt("Hello, world!");
-    
+
     c.bench_function("crockford 5111", |b| {
         b.iter(|| crockford::encode(black_box(5111)))
     });
 
-    c.bench_function("weird 5111", |b| {
-        b.iter(|| weird.encode(black_box(5111)))
-    });
+    c.bench_function("weird 5111", |b| b.iter(|| weird.encode(black_box(5111))));
 
     c.bench_function("crockford 184long", |b| {
         b.iter(|| crockford::encode(black_box(18446744073709551615)))
@@ -48,7 +46,9 @@ fn encode_benchmark(c: &mut Criterion) {
         let mut buffer = String::with_capacity(13);
         b.iter(|| {
             buffer.clear();
-            weird.encode_into(black_box(18446744073709551615), &mut buffer).unwrap();
+            weird
+                .encode_into(black_box(18446744073709551615), &mut buffer)
+                .unwrap();
         })
     });
 }
