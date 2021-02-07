@@ -57,7 +57,7 @@ mod error;
 
 pub use error::*;
 use rand::{prelude::SliceRandom, Rng};
-use squirrel::SquirrelRng;
+use squirrel_rng::SquirrelRng;
 
 static CANONICAL_MAPPING: &[i8; 256] = &include!("../resources/u8-mapping.txt");
 static UPPERCASE_ENCODING: &[u8; 32] = b"0123456789ABCDEFGHJKMNPQRSTVWXYZ";
