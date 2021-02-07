@@ -12,4 +12,15 @@ description = """
 A Crockford Base32-like encoding that produces non-sequential output based on a salt.
 """
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# Some idiot decided that things should work differently in release mode
+# than in debug, which makes hash implementations annoying to write.
+# [profile.dev]
+# overflow-checks = false
+
 [dependencies]
+rand = "0.8.3"
+squirrel = { git = "https://github.com/archer884/squirrel" }
+
+
