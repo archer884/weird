@@ -5,7 +5,7 @@ use weird::Weird;
 
 fn main() {
     let salt = "In the beginning God created the heaven and the earth.";
-    let weird = Weird::with_salt(salt);
+    let weird = Weird::from_salt(salt);
 
     for identifier in (1..=200).map(|n| n + 1_000_000) {
         let encoded = weird.encode(identifier);

@@ -135,7 +135,7 @@ pub struct Weird<T> {
 }
 
 impl<T: Salt> Weird<T> {
-    pub fn with_salt(salt: T) -> Self {
+    pub fn from_salt(salt: T) -> Self {
         Self {
             alphabet: Alphabet::from_salt(salt.bytes()),
             salt,
