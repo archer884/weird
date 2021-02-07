@@ -21,7 +21,7 @@ A Crockford Base32-like encoding that produces non-sequential output based on a 
 
 [dependencies]
 rand = "0.8.3"
-squirrel = { git = "https://github.com/archer884/squirrel" }
+squirrel = { version = "0.1.1", git = "https://github.com/archer884/squirrel" }
 
 [dev-dependencies]
 criterion = "0.3"
