@@ -1,23 +1,23 @@
-use weird::{Salt, Weird};
+use weird::{Alphabet, Weird, WeirdWithAlphabet};
+
+// This works now, but I'm not convinced that the randomized alphabet
+// works any better than the salt alone, in the grand scheme of things.
 
 fn main() {
-    let salt_a = "In the beginning God created the heaven and the earth.";
+    let salt = "In the beginning God created the heaven and the earth.";
+    let weird = Weird::new(salt);
+    let weirder = WeirdWithAlphabet::new(
+        salt,
+        Alphabet::new("4836Q1XBVM59THGRS7Y2ADW0NFZJKPEC").unwrap(),
+    );
 
-    // Via constructor.
-    let weird_a = Weird::new(salt_a);
+    for n in 1..=200 {
+        let a = weird.encode(n);
+        let b = weirder.encode(n);
 
-    // Statically.
-    static WEIRD_B: &Weird<&[u8]> = &Weird {
-        salt: Salt(b"And the earth was without form, and void; and darkness was upon the face of the deep.")
-    };
+        assert_eq!(weird.decode(&a).unwrap(), n);
+        assert_eq!(weirder.decode(&b).unwrap(), n);
 
-    for n in 1..=100 {
-        let a = weird_a.encode(n);
-        let b = WEIRD_B.encode(n);
-
-        assert_eq!(n, weird_a.decode(&a).unwrap());
-        assert_eq!(n, WEIRD_B.decode(&b).unwrap());
-
-        println!("A: {} B: {}", a, b);
+        println!("{:>3}: {:>2} / {:>2}", n, a, b);
     }
 }
